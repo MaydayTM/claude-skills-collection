@@ -22,6 +22,13 @@ Supabase setup and configuration automation
 Automated Stripe payment integration
 - [Full Docs](./skills/stripe-auto-setup/README.md)
 
+### 5. **n8n Workflow Automation** (`n8n-workflow`)
+Build n8n workflows via MCP for Held Lab & Reconnect Academy
+- Zoho Mail OAuth2 integration
+- AI-powered email classification
+- Frontend webhook patterns
+- [Full Docs](./skills/n8n-workflow/n8n-workflow.md)
+
 ---
 
 ## 🚀 Quick Start
