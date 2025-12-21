@@ -1,0 +1,6 @@
+{
+  "patient_name": "Mario Test",
+  "consult_date": "2025-11-05",
+  "blood_sample": "HomocysteÏne + 18.0 Opt:<8.0 V.N 3.7-13.9 µmol/L\nFerritine + 307 50-120:opt. 22-322:VN µg/L\nVitamine D - 39.7 45-60:opt. 30-100:VN ng/ml",
+  "dna_sample": "MTHFR rs1801133 AG [C677T] Up to 40% reduction in gene function\nCBS rs234706 AA Thought to be the strongest indicator of increased (up to 10x) CBS activity\nPEMT rs7946 TT Potential for reduced choline synthesis"
+}

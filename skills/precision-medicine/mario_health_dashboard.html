@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario - Precision Health Dashboard | HELD</title>
+    <style>
+        /* HELD Brand Colors v3.0 */
+        :root {
+            --jungle-green: #34B27B;
+            --jungle-green-dark: #2d9e6b;
+            --american-orange: #FE8900;
+            --bunker-dark: #11181C;
+            --white: #FFFFFF;
+            --black: #000000;
+            --gray-border: #E6E6E6;
+            --slate-3: #232326;
+            --text-high-contrast: #ededef;
+            
+            /* Status colors */
+            --status-critical: #EF4444;
+            --status-warning: #FE8900;
+            --status-optimal: #34B27B;
+            --status-good: #10B981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Open Sans', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--black);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--jungle-green) 0%, var(--jungle-green-dark) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 24px;
+            margin-bottom: 2rem;
+            box-shadow: 0 16px 40px -24px rgba(52, 178, 123, 0.35);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .patient-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Critical Alerts */
+        .alerts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .alert-card {
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .alert-critical {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--status-critical);
+        }
+
+        .alert-warning {
+            background: rgba(254, 137, 0, 0.1);
+            border-color: var(--status-warning);
+        }
+
+        .alert-good {
+            background: rgba(52, 178, 123, 0.1);
+            border-color: var(--status-optimal);
+        }
+
+        .alert-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+
+        .alert-description {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        /* Section Headers */
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--jungle-green);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--jungle-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        /* Biomarker Grid */
+        .biomarkers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .biomarker-card {
+            background: white;
+            border: 1px solid var(--gray-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .biomarker-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .biomarker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .biomarker-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--black);
+        }
+
+        .biomarker-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: #DC2626;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .status-warning {
+            background: rgba(254, 137, 0, 0.15);
+            color: #EA580C;
+            border: 1px solid rgba(254, 137, 0, 0.4);
+        }
+
+        .status-optimal {
+            background: rgba(52, 178, 123, 0.15);
+            color: #059669;
+            border: 1px solid rgba(52, 178, 123, 0.4);
+        }
+
+        .biomarker-values {
+            margin-bottom: 1rem;
+        }
+
+        .value-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .value-label {
+            opacity: 0.7;
+        }
+
+        .value-number {
+            font-weight: 600;
+        }
+
+        .biomarker-bar {
+            height: 8px;
+            background: var(--gray-border);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-top: 0.75rem;
+        }
+
+        .biomarker-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+
+        /* DNA Variants */
+        .dna-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .dna-card {
+            background: white;
+            border: 2px solid var(--gray-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .dna-card:hover {
+            border-color: var(--jungle-green);
+            box-shadow: 0 8px 24px rgba(52, 178, 123, 0.15);
+        }
+
+        .dna-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-border);
+        }
+
+        .gene-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--jungle-green);
+        }
+
+        .genotype {
+            background: var(--slate-3);
+            color: white;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .variant-impact {
+            background: rgba(254, 137, 0, 0.1);
+            border-left: 3px solid var(--american-orange);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .impact-title {
+            font-weight: 600;
+            color: var(--american-orange);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .impact-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .dna-recommendations {
+            background: rgba(52, 178, 123, 0.08);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(52, 178, 123, 0.2);
+        }
+
+        .rec-title {
+            font-weight: 600;
+            color: var(--jungle-green);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .rec-list {
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .rec-list li {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+
+        .rec-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--jungle-green);
+            font-weight: 700;
+        }
+
+        /* Action Plan Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline:before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--jungle-green);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 2rem;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -1.15rem;
+            top: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            background: var(--jungle-green);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px var(--jungle-green);
+        }
+
+        .timeline-phase {
+            background: white;
+            border: 2px solid var(--gray-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .phase-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--jungle-green);
+        }
+
+        .phase-duration {
+            background: rgba(52, 178, 123, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--jungle-green);
+        }
+
+        .phase-actions {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .action-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            border-left: 3px solid var(--jungle-green);
+        }
+
+        .action-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .action-content {
+            flex: 1;
+        }
+
+        .action-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Supplement Protocol */
+        .supplement-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .supplement-card {
+            background: white;
+            border: 2px solid var(--gray-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .supplement-time {
+            background: var(--jungle-green);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .time-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .time-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .supplement-info {
+            flex: 1;
+        }
+
+        .supplement-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--black);
+        }
+
+        .supplement-dosage {
+            font-size: 0.95rem;
+            color: var(--jungle-green);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .supplement-reason {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .supplement-badge {
+            background: var(--american-orange);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Priority Matrix */
+        .priority-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .priority-card {
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .priority-critical {
+            background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+        }
+
+        .priority-high {
+            background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+        }
+
+        .priority-medium {
+            background: linear-gradient(135deg, var(--jungle-green) 0%, var(--jungle-green-dark) 100%);
+        }
+
+        .priority-number {
+            font-size: 3rem;
+            font-weight: 700;
+            opacity: 0.2;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        .priority-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .priority-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .priority-description {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            opacity: 0.95;
+        }
+
+        .priority-metric {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 3rem;
+            padding: 2rem;
+            text-align: center;
+            border-top: 2px solid var(--gray-border);
+        }
+
+        .footer-text {
+            color: var(--jungle-green);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-note {
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .supplement-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .supplement-time {
+                justify-self: center;
+            }
+        }
+
+        /* Print Styles for PDF */
+        @media print {
+            body {
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 0;
+            }
+
+            /* Hide interactive elements */
+            button {
+                display: none !important;
+            }
+
+            a[href*="welldium"] {
+                display: none !important;
+            }
+
+            /* Ensure colors print */
+            .header,
+            .priority-card,
+            .alert-card,
+            .biomarker-fill,
+            .timeline-dot {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* Page breaks */
+            .section {
+                page-break-inside: avoid;
+            }
+
+            .dna-card,
+            .biomarker-card,
+            .priority-card {
+                page-break-inside: avoid;
+                margin-bottom: 1rem;
+            }
+
+            /* Ensure proper sizing */
+            .header {
+                margin-bottom: 1.5rem;
+            }
+
+            /* Remove shadows for cleaner print */
+            * {
+                box-shadow: none !important;
+            }
+
+            /* Keep essential borders */
+            .alert-card,
+            .dna-card,
+            .biomarker-card {
+                border: 2px solid #E6E6E6;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <div class="logo">HELD</div>
+                    <div class="tagline">Preventieve Gezondheid & Biohacking</div>
+                </div>
+                <button onclick="window.print()" style="background: white; color: var(--jungle-green); padding: 0.75rem 1.5rem; border-radius: 9999px; border: 2px solid white; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <span style="font-size: 1.2rem;">📄</span>
+                    Download als PDF
+                </button>
+            </div>
+            
+            <div class="patient-info">
+                <div class="info-card">
+                    <div class="info-label">Patiënt</div>
+                    <div class="info-value">Mario</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Consult Datum</div>
+                    <div class="info-value">5 Nov 2025</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Hertest Datum</div>
+                    <div class="info-value">17 Dec 2025</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">BioAge Score</div>
+                    <div class="info-value">⚠️ 42</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Critical Alerts -->
+        <div class="alerts-section">
+            <div class="alert-card alert-critical">
+                <div class="alert-title">
+                    <span class="alert-icon">🔴</span>
+                    <span>Kritieke Afwijking</span>
+                </div>
+                <div class="alert-description">
+                    <strong>HomocysteÏne: 18.0 µmol/L</strong> (Optimaal: &lt;8.0)<br>
+                    Verhoogd risico op cardiovasculaire problematiek door methylatie-stoornis
+                </div>
+            </div>
+
+            <div class="alert-card alert-critical">
+                <div class="alert-title">
+                    <span class="alert-icon">🔴</span>
+                    <span>Verhoogd Inflammatieprofiel</span>
+                </div>
+                <div class="alert-description">
+                    <strong>Ferritine: 307 µg/L</strong> (Optimaal: 50-120)<br>
+                    Wijst op actief ontstekingsproces - oorzaak onbekend
+                </div>
+            </div>
+
+            <div class="alert-card alert-warning">
+                <div class="alert-title">
+                    <span class="alert-icon">🟡</span>
+                    <span>Vitamine D Deficiëntie</span>
+                </div>
+                <div class="alert-description">
+                    <strong>Vitamine D: 39.7 ng/ml</strong> (Optimaal: 45-60)<br>
+                    Immuunfunctie suboptimaal, receptor mogelijk downgereguleerd
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority Actions -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">🎯 Prioriteiten - 3 Maanden Plan</h2>
+                <p class="section-subtitle">Gefaseerde aanpak voor optimale resultaten</p>
+            </div>
+
+            <div class="priority-grid">
+                <div class="priority-card priority-critical">
+                    <div class="priority-number">1</div>
+                    <div class="priority-label">Prioriteit 1 - Maand 1</div>
+                    <div class="priority-title">Methylatie Herstellen</div>
+                    <div class="priority-description">
+                        Homocysteïne verlagen door choline pathway optimaliseren. Focus op fosfatidylcholine (600mg+) en cofactoren.
+                    </div>
+                    <div class="priority-metric">
+                        <span class="metric-label">Doelwaarde HomocysteÏne:</span>
+                        <span class="metric-value">&lt; 8.0 µmol/L</span>
+                    </div>
+                </div>
+
+                <div class="priority-card priority-high">
+                    <div class="priority-number">2</div>
+                    <div class="priority-label">Prioriteit 2 - Maand 1-2</div>
+                    <div class="priority-title">Inflammatie Normaliseren</div>
+                    <div class="priority-description">
+                        Ferritine terugbrengen naar optimale range. Onderliggende ontstekingsoorzaak identificeren en behandelen.
+                    </div>
+                    <div class="priority-metric">
+                        <span class="metric-label">Doelwaarde Ferritine:</span>
+                        <span class="metric-value">70-90 µg/L</span>
+                    </div>
+                </div>
+
+                <div class="priority-card priority-medium">
+                    <div class="priority-number">3</div>
+                    <div class="priority-label">Prioriteit 3 - Maand 2-3</div>
+                    <div class="priority-title">Neurotransmitter Balans</div>
+                    <div class="priority-description">
+                        COMT/MAOA varianten ondersteunen met magnesium, B2, BH4 pathway optimalisatie voor dopamine metabolisme.
+                    </div>
+                    <div class="priority-metric">
+                        <span class="metric-label">Verwacht Effect:</span>
+                        <span class="metric-value">6-8 weken</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplement Protocol -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">💊 Dagelijks Supplementenprotocol</h2>
+                <p class="section-subtitle">Gepersonaliseerd op basis van DNA & biomarkers - timing is cruciaal</p>
+            </div>
+
+            <div class="supplement-grid">
+                <div class="supplement-card">
+                    <div class="supplement-time">
+                        <div class="time-label">Ochtend</div>
+                        <div class="time-value">07:30</div>
+                    </div>
+                    <div class="supplement-info">
+                        <div class="supplement-name">Fosfatidylcholine</div>
+                        <div class="supplement-dosage">600-800 mg (Sunflower Lecithin vorm)</div>
+                        <div class="supplement-reason">PRIORITEIT: Choline pathway ondersteuning voor PEMT TT variant & BHMT downregulatie. Essentieel voor homocysteïne conversie via "shortcut" pathway.</div>
+                    </div>
+                    <div class="supplement-badge">KERN</div>
+                </div>
+
+                <div class="supplement-card">
+                    <div class="supplement-time">
+                        <div class="time-label">Bij Ontbijt</div>
+                        <div class="time-value">08:00</div>
+                    </div>
+                    <div class="supplement-info">
+                        <div class="supplement-name">Vitamine D3 + K2 (vloeibaar)</div>
+                        <div class="supplement-dosage">4000-5000 IU D3 + 100 mcg K2-MK7</div>
+                        <div class="supplement-reason">Huidige waarde 39.7 ng/ml → doel 50-60 ng/ml. Vloeibare vorm voor betere absorptie. K2 voor calcium metabolisme. VDR variants vereisen hogere dosis.</div>
+                    </div>
+                    <div class="supplement-badge">KRITIEK</div>
+                </div>
+
+                <div class="supplement-card">
+                    <div class="supplement-time">
+                        <div class="time-label">Lunch</div>
+                        <div class="time-value">12:30</div>
+                    </div>
+                    <div class="supplement-info">
+                        <div class="supplement-name">Zink Bisglycinaat</div>
+                        <div class="supplement-dosage">25-30 mg elementair zink</div>
+                        <div class="supplement-reason">Niet getest maar cruciaal voor: BHMT cofactor, SAMe conversie, methylatie support. CHDH CA variant verhoogt zink behoefte.</div>
+                    </div>
+                    <div class="supplement-badge">ESSENTIEEL</div>
+                </div>
+
+                <div class="supplement-card">
+                    <div class="supplement-time">
+                        <div class="time-label">Middag</div>
+                        <div class="time-value">15:00</div>
+                    </div>
+                    <div class="supplement-info">
+                        <div class="supplement-name">Magnesium Glycinaat</div>
+                        <div class="supplement-dosage">400 mg elementair magnesium</div>
+                        <div class="supplement-reason">COMT/MAOA ondersteuning voor neurotransmitter afbraak. SAMe conversie cofactor. Huidige magnesium RBC is adequaat maar COMT variants verhogen behoefte.</div>
+                    </div>
+                    <div class="supplement-badge">SUPPORT</div>
+                </div>
+
+                <div class="supplement-card">
+                    <div class="supplement-time">
+                        <div class="time-label">Avond</div>
+                        <div class="time-value">20:00</div>
+                    </div>
+                    <div class="supplement-info">
+                        <div class="supplement-name">Methylated B-Complex</div>
+                        <div class="supplement-dosage">Bevat: 5-MTHF 400mcg, Methylcobalamin 500mcg, P5P 25mg, Riboflavin-5-Phosphate 25mg</div>
+                        <div class="supplement-reason">MTHFR C677T AG + A1298C GT varianten. MTRR GA variant. P5P voor CBS upregulatie. Wacht 6 weken na choline start om ammonia buildup te voorkomen.</div>
+                    </div>
+                    <div class="supplement-badge">FASE 2</div>
+                </div>
+
+                <div class="supplement-card">
+                    <div class="supplement-time">
+                        <div class="time-label">Voor Bed</div>
+                        <div class="time-value">22:00</div>
+                    </div>
+                    <div class="supplement-info">
+                        <div class="supplement-name">Trimethylglycine (TMG/Betaine)</div>
+                        <div class="supplement-dosage">500-1000 mg</div>
+                        <div class="supplement-reason">Direct cofactor voor BHMT "shortcut" pathway. Ondersteunt methylatie zonder CBS upregulatie. Synergistisch met choline.</div>
+                    </div>
+                    <div class="supplement-badge">KERN</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Critical Biomarkers -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">🩸 Kritieke Biomarkers - Focus Punten</h2>
+                <p class="section-subtitle">Afwijkingen die onmiddellijke aandacht vereisen</p>
+            </div>
+
+            <div class="biomarkers-grid">
+                <div class="biomarker-card">
+                    <div class="biomarker-header">
+                        <div class="biomarker-name">HomocysteÏne</div>
+                        <div class="biomarker-status status-critical">KRITIEK</div>
+                    </div>
+                    <div class="biomarker-values">
+                        <div class="value-row">
+                            <span class="value-label">Huidig:</span>
+                            <span class="value-number">18.0 µmol/L</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Optimaal:</span>
+                            <span class="value-number">&lt; 8.0 µmol/L</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Normaal:</span>
+                            <span class="value-number">3.7-13.9 µmol/L</span>
+                        </div>
+                    </div>
+                    <div class="biomarker-bar">
+                        <div class="biomarker-fill" style="width: 100%; background: var(--status-critical);"></div>
+                    </div>
+                </div>
+
+                <div class="biomarker-card">
+                    <div class="biomarker-header">
+                        <div class="biomarker-name">Ferritine</div>
+                        <div class="biomarker-status status-critical">HOOG</div>
+                    </div>
+                    <div class="biomarker-values">
+                        <div class="value-row">
+                            <span class="value-label">Huidig:</span>
+                            <span class="value-number">307 µg/L</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Optimaal:</span>
+                            <span class="value-number">50-120 µg/L</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Normaal:</span>
+                            <span class="value-number">22-322 µg/L</span>
+                        </div>
+                    </div>
+                    <div class="biomarker-bar">
+                        <div class="biomarker-fill" style="width: 95%; background: var(--status-critical);"></div>
+                    </div>
+                </div>
+
+                <div class="biomarker-card">
+                    <div class="biomarker-header">
+                        <div class="biomarker-name">Vitamine D (25-OH)</div>
+                        <div class="biomarker-status status-warning">LAAG</div>
+                    </div>
+                    <div class="biomarker-values">
+                        <div class="value-row">
+                            <span class="value-label">Huidig:</span>
+                            <span class="value-number">39.7 ng/ml</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Optimaal:</span>
+                            <span class="value-number">45-60 ng/ml</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Normaal:</span>
+                            <span class="value-number">30-100 ng/ml</span>
+                        </div>
+                    </div>
+                    <div class="biomarker-bar">
+                        <div class="biomarker-fill" style="width: 66%; background: var(--status-warning);"></div>
+                    </div>
+                </div>
+
+                <div class="biomarker-card">
+                    <div class="biomarker-header">
+                        <div class="biomarker-name">Triglyceriden</div>
+                        <div class="biomarker-status status-warning">VERHOOGD</div>
+                    </div>
+                    <div class="biomarker-values">
+                        <div class="value-row">
+                            <span class="value-label">Huidig:</span>
+                            <span class="value-number">187 mg/dL</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Optimaal:</span>
+                            <span class="value-number">30-170 mg/dL</span>
+                        </div>
+                    </div>
+                    <div class="biomarker-bar">
+                        <div class="biomarker-fill" style="width: 85%; background: var(--status-warning);"></div>
+                    </div>
+                </div>
+
+                <div class="biomarker-card">
+                    <div class="biomarker-header">
+                        <div class="biomarker-name">CoQ10</div>
+                        <div class="biomarker-status status-warning">HOOG</div>
+                    </div>
+                    <div class="biomarker-values">
+                        <div class="value-row">
+                            <span class="value-label">Huidig:</span>
+                            <span class="value-number">1533 µg/L</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Optimaal:</span>
+                            <span class="value-number">670-990 µg/L</span>
+                        </div>
+                    </div>
+                    <div class="biomarker-bar">
+                        <div class="biomarker-fill" style="width: 100%; background: var(--status-warning);"></div>
+                    </div>
+                </div>
+
+                <div class="biomarker-card">
+                    <div class="biomarker-header">
+                        <div class="biomarker-name">Hematokriet</div>
+                        <div class="biomarker-status status-warning">VERHOOGD</div>
+                    </div>
+                    <div class="biomarker-values">
+                        <div class="value-row">
+                            <span class="value-label">Huidig:</span>
+                            <span class="value-number">53.4 %</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Optimaal:</span>
+                            <span class="value-number">40-52 %</span>
+                        </div>
+                    </div>
+                    <div class="biomarker-bar">
+                        <div class="biomarker-fill" style="width: 87%; background: var(--status-warning);"></div>
+                    </div>
+                </div>
+
+                <div class="biomarker-card">
+                    <div class="biomarker-header">
+                        <div class="biomarker-name">LDL Cholesterol</div>
+                        <div class="biomarker-status status-warning">HOOG</div>
+                    </div>
+                    <div class="biomarker-values">
+                        <div class="value-row">
+                            <span class="value-label">Huidig:</span>
+                            <span class="value-number">149 mg/dL</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Optimaal:</span>
+                            <span class="value-number">&lt; 114 mg/dL</span>
+                        </div>
+                    </div>
+                    <div class="biomarker-bar">
+                        <div class="biomarker-fill" style="width: 92%; background: var(--status-warning);"></div>
+                    </div>
+                </div>
+
+                <div class="biomarker-card">
+                    <div class="biomarker-header">
+                        <div class="biomarker-name">Active B12</div>
+                        <div class="biomarker-status status-optimal">OPTIMAAL</div>
+                    </div>
+                    <div class="biomarker-values">
+                        <div class="value-row">
+                            <span class="value-label">Huidig:</span>
+                            <span class="value-number">180 pmol/L</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Optimaal:</span>
+                            <span class="value-number">60-180 pmol/L</span>
+                        </div>
+                    </div>
+                    <div class="biomarker-bar">
+                        <div class="biomarker-fill" style="width: 100%; background: var(--status-optimal);"></div>
+                    </div>
+                </div>
+
+                <div class="biomarker-card">
+                    <div class="biomarker-header">
+                        <div class="biomarker-name">HbA1c</div>
+                        <div class="biomarker-status status-optimal">GOED</div>
+                    </div>
+                    <div class="biomarker-values">
+                        <div class="value-row">
+                            <span class="value-label">Huidig:</span>
+                            <span class="value-number">5.2 %</span>
+                        </div>
+                        <div class="value-row">
+                            <span class="value-label">Optimaal:</span>
+                            <span class="value-number">4.0-6.0 %</span>
+                        </div>
+                    </div>
+                    <div class="biomarker-bar">
+                        <div class="biomarker-fill" style="width: 60%; background: var(--status-optimal);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DNA Methylation Critical Variants -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">🧬 DNA Methylatie - Kritieke Varianten</h2>
+                <p class="section-subtitle">32-genen panel analyse - focus op impact & actieplan</p>
+            </div>
+
+            <div class="dna-grid">
+                <!-- MTHFR -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">MTHFR (Dubbel Variant)</div>
+                        <div class="genotype">C677T: AG<br>A1298C: GT</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ Impact op Methylatie</div>
+                        <div class="impact-text">
+                            <strong>C677T AG:</strong> Tot 40% reductie in 5-MTHF productie<br>
+                            <strong>A1298C GT:</strong> Verminderde BH4 regeneratie voor neurotransmitters<br>
+                            <strong>Combi-effect:</strong> Verhoogd risico op hoge homocysteïne (BEVESTIGD: 18.0 µmol/L)
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ Gepersonaliseerde Strategie</div>
+                        <ul class="rec-list">
+                            <li>5-MTHF (methylfolate) 400-800 mcg/dag</li>
+                            <li>Vermijd synthetische foliumzuur (folic acid)</li>
+                            <li>Verhoog B2 (25mg P5P) en B3 voor cofactor support</li>
+                            <li>Groene bladgroenten, citrusvruchten, bonen</li>
+                            <li>Magnesium & zink cruciaal voor conversie</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- CBS -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">CBS (Upregulatie)</div>
+                        <div class="genotype">rs234706: AA</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ Tot 10x Verhoogde Enzym Activiteit</div>
+                        <div class="impact-text">
+                            <strong>Probleem:</strong> Homocysteïne wordt té snel omgezet naar cystathionine → depleteert methionine pathway → verminderde SAMe productie<br>
+                            <strong>Gevolg:</strong> Lage glutathione, ammonia buildup, B6/B12 depletie<br>
+                            <strong>Let op:</strong> Wees voorzichtig met B-vitamines voordat choline pathway geoptimaliseerd is
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ CBS Management Protocol</div>
+                        <ul class="rec-list">
+                            <li>PRIORITEIT: Ondersteun BHMT "shortcut" met choline/betaine</li>
+                            <li>Start NIET met methylated B's voor week 6</li>
+                            <li>Limiteer zwavelhoudende voeding indien symptomen</li>
+                            <li>Probiotica tegen ammonia productie</li>
+                            <li>P5P (actieve B6) 25-50mg na week 6</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- PEMT -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">PEMT (Choline Synthese)</div>
+                        <div class="genotype">rs7946: TT</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">🔴 Verminderde Endogene Choline Productie</div>
+                        <div class="impact-text">
+                            <strong>TT genotype:</strong> Kan choline niet effectief maken uit fosfatidylcholine<br>
+                            <strong>Extra risico:</strong> Als man (lage oestrogeen) nog minder PEMT activiteit<br>
+                            <strong>Cascade effect:</strong> Choline tekort → geen betaine → BHMT werkt niet → hoge homocysteïne → geen SAMe → slechte methylatie
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ Choline Supplementatie VERPLICHT</div>
+                        <ul class="rec-list">
+                            <li><strong>Fosfatidylcholine 600-800mg/dag (KERN supplement)</strong></li>
+                            <li>Of CDP-choline (Citicoline) 250-500mg</li>
+                            <li>Voeding: Eieren (180mg/ei), rund, kip, vis</li>
+                            <li>Dit is het FUNDAMENT van jouw methylatie herstel</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- BHMT Cluster -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">BHMT (Shortcut Pathway)</div>
+                        <div class="genotype">rs3733890: AG<br>rs651852: TC</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ Downgereguleerde "Shortcut"</div>
+                        <div class="impact-text">
+                            <strong>Beide variants:</strong> Verminderde BHMT activiteit<br>
+                            <strong>Betekenis:</strong> Minder effectieve directe conversie homocysteïne → methionine<br>
+                            <strong>Verhoogd risico:</strong> Neural tube defects, hoge homocysteïne<br>
+                            <strong>Compenseert voor:</strong> CBS upregulatie door alternatieve route aan te bieden
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ BHMT Support Essentieel</div>
+                        <ul class="rec-list">
+                            <li>Zink (cofactor): 25-30mg bisglycinaat vorm</li>
+                            <li>Betaine/TMG: 500-1000mg/dag</li>
+                            <li>Choline (betaine substraat): via fosfatidylcholine</li>
+                            <li>Voeding: Quinoa, spinazie, rode biet (betaine)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- COMT -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">COMT (Dubbel Slow)</div>
+                        <div class="genotype">rs4633: TC<br>rs4680: AG</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ Trage Catecholamine Afbraak</div>
+                        <div class="impact-text">
+                            <strong>Beide slow variants:</strong> Verminderde COMT activiteit<br>
+                            <strong>Gevolg:</strong> Dopamine, adrenaline, noradrenaline breken langzaam af<br>
+                            <strong>Voordeel:</strong> In combi met VDR variants → normale dopamine levels<br>
+                            <strong>Risico:</strong> Overstimulatie bij teveel methyl donors, mood swings<br>
+                            <strong>Let op:</strong> Lage SAMe verergert COMT nog meer
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ COMT Balancering</div>
+                        <ul class="rec-list">
+                            <li>Magnesium glycinaat 400mg (cofactor voor COMT)</li>
+                            <li>Start methylated B's langzaam (na week 6)</li>
+                            <li>Vermijd te veel koffie/stimulanten</li>
+                            <li>B2 (riboflavin-5-phosphate) ondersteunt COMT</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- MAOA -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">MAOA ("Warrior Gene")</div>
+                        <div class="genotype">rs6323: TT</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ Lage MAOA Activiteit</div>
+                        <div class="impact-text">
+                            <strong>TT "warrior" variant:</strong> Trage afbraak monoamine neurotransmitters<br>
+                            <strong>Effect:</strong> Hogere serotonine, dopamine, noradrenaline levels<br>
+                            <strong>Voordeel:</strong> Betere stress resistance, focus onder druk<br>
+                            <strong>Nadeel:</strong> Mogelijk anxiety, outward anger bij dysbalans
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ MAOA Ondersteuning</div>
+                        <ul class="rec-list">
+                            <li>B2 (riboflavin) verhoogt MAOA activiteit</li>
+                            <li>Magnesium & zink ondersteunen enzym</li>
+                            <li>Vermijd alcohol (remt MAOA verder)</li>
+                            <li>Stress management cruciaal</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- VDR -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">VDR (Dubbel Variant)</div>
+                        <div class="genotype">rs1544410: TC<br>rs731236: GA</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ Verminderde Dopamine Synthese</div>
+                        <div class="impact-text">
+                            <strong>Beide variants:</strong> Lagere dopamine productie<br>
+                            <strong>Paradox:</strong> Normaal negatief, maar met COMT slow variants → POSITIEF!<br>
+                            <strong>Jouw situatie:</strong> Trage productie + trage afbraak = normale levels<br>
+                            <strong>Vitamine D receptor:</strong> Mogelijk downgereguleerd (verklaart lage D waarde 39.7)
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ VDR Support & Compensatie</div>
+                        <ul class="rec-list">
+                            <li>Hogere vitamine D dosis nodig: 4000-5000 IU/dag</li>
+                            <li>Vloeibare vorm voor betere absorptie</li>
+                            <li>K2-MK7 100mcg (synergistisch met D3)</li>
+                            <li>Dopamine voorzichtig supporten (na methylatie herstel)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- MTRR -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">MTRR (B12 Recycling)</div>
+                        <div class="genotype">rs1801394: GA</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ Verminderde B12 Remethylatie</div>
+                        <div class="impact-text">
+                            <strong>GA variant:</strong> Minder effectief B12 recycling voor MTR enzym<br>
+                            <strong>Effect:</strong> Kan bijdragen aan hyperhomocysteinemia<br>
+                            <strong>Goed nieuws:</strong> Jouw actieve B12 is optimaal (180 pmol/L)<br>
+                            <strong>Let op:</strong> Methylated B12 (methylcobalamin) is voorkeur boven cyanocobalamin
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ B12 Optimalisatie</div>
+                        <ul class="rec-list">
+                            <li>Methylcobalamin vorm (niet cyanocobalamin)</li>
+                            <li>500-1000 mcg/dag in B-complex (na week 6)</li>
+                            <li>Behoud huidige goede B12 status</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- CHDH -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">CHDH (Choline Transport)</div>
+                        <div class="genotype">rs12676: CA</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ Trage Choline → Betaine Conversie</div>
+                        <div class="impact-text">
+                            <strong>CA variant:</strong> Verminderd choline transport in mitochondria<br>
+                            <strong>Risico:</strong> 20x verhoogd risico op choline deficiëntie bij lage inname<br>
+                            <strong>Effect op fertiliteit:</strong> Verminderde sperm kwaliteit (als relevant)<br>
+                            <strong>Synergistisch met:</strong> PEMT TT variant → dubbel choline probleem
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ Extra Choline Focus</div>
+                        <ul class="rec-list">
+                            <li>Nog belangrijker: fosfatidylcholine 600-800mg</li>
+                            <li>Eieren DAGELIJKS (2-3 stuks minimum)</li>
+                            <li>PQQ (pyrroloquinoline quinone) overweeg als cofactor</li>
+                            <li>Kiwifruit, orgaanvlees voor natuurlijke PQQ</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- NOS3 -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">NOS3 (Nitric Oxide)</div>
+                        <div class="genotype">rs1799983: GT<br>rs2070744: TC</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ Verminderde eNOS & Stikstofoxide</div>
+                        <div class="impact-text">
+                            <strong>Beide variants:</strong> Lagere NO productie<br>
+                            <strong>Gevolgen:</strong> Tragere ammonia detox, meer vrije radicalen<br>
+                            <strong>Cardiovasculair risico:</strong> Verhoogd (hypertensie, CAD)<br>
+                            <strong>Link met consult:</strong> "Nitrocoïde" probleem - zuurstoftransport slaap
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ NO Support Strategie</div>
+                        <ul class="rec-list">
+                            <li>5-MTHF cruciaal voor BH4 productie (NO cofactor)</li>
+                            <li>Verhoog antioxidanten (vitamine C, E, glutathione precursors)</li>
+                            <li>Modereer eiwitinname (ammonia generatie)</li>
+                            <li>Overweeg citrulline/arginine voor NO support</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- FUT2 -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">FUT2 (Secretor Status)</div>
+                        <div class="genotype">rs601338: AG</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ H. Pylori Gevoeligheid</div>
+                        <div class="impact-text">
+                            <strong>AG secretor:</strong> Verhoogde gevoeligheid H. pylori infectie<br>
+                            <strong>Effect:</strong> Gastritis → verminderde B12 absorptie<br>
+                            <strong>Jouw B12:</strong> Momenteel optimaal, maar monitor dit<br>
+                            <strong>Preventie:</strong> Ondersteun maag-darm gezondheid
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ GI Systeem Support</div>
+                        <ul class="rec-list">
+                            <li>Probiotica voor maagdarm balans</li>
+                            <li>Fermented foods (kefir, kimchi, zuurkool)</li>
+                            <li>Overweeg H. pylori test bij GI symptomen</li>
+                            <li>Vermijd NSAIDs, alcohol op lege maag</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- GSS -->
+                <div class="dna-card">
+                    <div class="dna-header">
+                        <div class="gene-name">GSS (Glutathione Synthese)</div>
+                        <div class="genotype">rs1801310: GA<br>rs6088659: CT</div>
+                    </div>
+                    <div class="variant-impact">
+                        <div class="impact-title">⚠️ Verminderde Glutathione Productie</div>
+                        <div class="impact-text">
+                            <strong>Beide variants:</strong> Lage GSS enzym activiteit<br>
+                            <strong>Effect:</strong> Trage glutathione synthese (master antioxidant)<br>
+                            <strong>ATP afhankelijk:</strong> Vereist voldoende ATP als coenzym<br>
+                            <strong>Link met CBS:</strong> CBS upregulatie kan glutathione verder verlagen
+                        </div>
+                    </div>
+                    <div class="dna-recommendations">
+                        <div class="rec-title">✓ Glutathione Support</div>
+                        <ul class="rec-list">
+                            <li>NAC (N-acetylcysteine) 600mg 2x/dag</li>
+                            <li>Glycine + glutamine voor GSH synthese</li>
+                            <li>Selenium 200mcg (glutathione peroxidase cofactor)</li>
+                            <li>Vitamine C & E als antioxidant backup</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3-Month Action Plan -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">📅 3-Maanden Gefaseerd Actieplan</h2>
+                <p class="section-subtitle">Stapsgewijze implementatie voor duurzame resultaten</p>
+            </div>
+
+            <div class="timeline">
+                <!-- Phase 1 -->
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-phase">
+                        <div class="phase-header">
+                            <div class="phase-title">Fase 1: Fundament Leggen</div>
+                            <div class="phase-duration">Week 1-6</div>
+                        </div>
+                        <div class="phase-actions">
+                            <div class="action-item">
+                                <div class="action-icon">🥚</div>
+                                <div class="action-content">
+                                    <div class="action-title">Choline Pathway Herstellen (PRIORITEIT)</div>
+                                    <div class="action-description">
+                                        Start fosfatidylcholine 600-800mg + TMG 500mg + zink 25mg. Dit is het fundament - BHMT shortcut moet werken voordat we methylatie verder pushen. Eet dagelijks 2-3 eieren + rund/kip/vis voor extra choline.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-item">
+                                <div class="action-icon">☀️</div>
+                                <div class="action-content">
+                                    <div class="action-title">Vitamine D Normaliseren</div>
+                                    <div class="action-description">
+                                        Vloeibare D3 4000-5000 IU + K2 100mcg dagelijks. VDR variants vereisen hogere dosis. Doel: 50-60 ng/ml binnen 6-8 weken. Meet opnieuw bij hertest.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-item">
+                                <div class="action-icon">🧘</div>
+                                <div class="action-content">
+                                    <div class="action-title">Inflammatie Onderzoek</div>
+                                    <div class="action-description">
+                                        Ferritine 307 is te hoog. Zoek onderliggende oorzaak: infectie? Chronische inflammatie? Auto-immuun? Werk samen met arts voor verder onderzoek. CRP is laag (0.46) dus geen acute systemische inflammatie.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-item">
+                                <div class="action-icon">🧠</div>
+                                <div class="action-content">
+                                    <div class="action-title">COMT Support Starten</div>
+                                    <div class="action-description">
+                                        Magnesium glycinaat 400mg vanaf week 1. COMT slow variants + lage SAMe = nog tragere catecholamine afbraak. Magnesium helpt COMT enzym werken.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(254, 137, 0, 0.1); border-radius: 8px; border-left: 3px solid var(--american-orange);">
+                            <strong>⚠️ LET OP Week 1-6:</strong> Nog GEEN methylated B-complex starten! CBS upregulatie + onvoldoende choline = ammonia buildup risico. Wacht tot week 6 voor veilige implementatie.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-phase">
+                        <div class="phase-header">
+                            <div class="phase-title">Fase 2: Methylatie Optimaliseren</div>
+                            <div class="phase-duration">Week 6-8</div>
+                        </div>
+                        <div class="phase-actions">
+                            <div class="action-item">
+                                <div class="action-icon">📊</div>
+                                <div class="action-content">
+                                    <div class="action-title">Hertest & Evaluatie (Week 6)</div>
+                                    <div class="action-description">
+                                        <strong>Meet opnieuw:</strong> HomocysteÏne (doel: &lt;10), Ferritine (doel: &lt;200), Vitamine D (doel: 50+), Triglyceriden, Zink (nu toevoegen aan panel), Magnesium RBC. Evalueer of choline pathway werkt voordat je verder gaat.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-item">
+                                <div class="action-icon">💊</div>
+                                <div class="action-content">
+                                    <div class="action-title">B-Complex Toevoegen (NA Week 6)</div>
+                                    <div class="action-description">
+                                        <strong>ALS homocysteïne gedaald:</strong> Start methylated B-complex (5-MTHF 400mcg, methylcobalamin 500mcg, P5P 25mg, R5P 25mg). Start laag en bouw op. Monitor op overstimulatie (COMT slow!). ALS homocysteïne niet gedaald: verhoog eerst choline/betaine dosis.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-item">
+                                <div class="action-icon">🥬</div>
+                                <div class="action-content">
+                                    <div class="action-title">Voeding Optimaliseren</div>
+                                    <div class="action-description">
+                                        <strong>Verhoog:</strong> Groene bladgroenten (folaat), citrus (vitamine C), bonen, quinoa/spinazie/biet (betaine), eieren (choline), vette vis (omega-3).<br>
+                                        <strong>Modereer:</strong> Rood vlees (ammonia), alcohol (MAOA remming), zwavelhoudend (indien symptomen).
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-item">
+                                <div class="action-icon">🔬</div>
+                                <div class="action-content">
+                                    <div class="action-title">Antioxidant Support</div>
+                                    <div class="action-description">
+                                        NAC 600mg 2x/dag voor glutathione (GSS variants). Vitamine C 1000mg. NOS3 variants verhogen vrije radicalen - antioxidanten zijn essentieel.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-phase">
+                        <div class="phase-header">
+                            <div class="phase-title">Fase 3: Fine-tuning & Monitoring</div>
+                            <div class="phase-duration">Week 8-12</div>
+                        </div>
+                        <div class="phase-actions">
+                            <div class="action-item">
+                                <div class="action-icon">🎯</div>
+                                <div class="action-content">
+                                    <div class="action-title">Symptoom Tracking</div>
+                                    <div class="action-description">
+                                        Monitor: energie levels, slaapkwaliteit, mentale helderheid, mood stabiliteit, stress tolerantie. COMT/MAOA/VDR variants beïnvloeden neurotransmitters - let op veranderingen. Te veel methylatie = overstimulatie. Te weinig = vermoeidheid.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-item">
+                                <div class="action-icon">⚖️</div>
+                                <div class="action-content">
+                                    <div class="action-title">Dosering Aanpassen</div>
+                                    <div class="action-description">
+                                        Op basis van lab resultaten en symptomen: fine-tune B-complex dosis, overweeg SAMe (100-200mg) als homocysteïne laag genoeg, adjust choline indien nodig. Personalisatie is key - geen "one size fits all".
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-item">
+                                <div class="action-icon">🔄</div>
+                                <div class="action-content">
+                                    <div class="action-title">Lifestyle Optimalisatie</div>
+                                    <div class="action-description">
+                                        <strong>Slaap:</strong> 7-8u consistent (NOS3 - zuurstoftransport slaap).<br>
+                                        <strong>Stress:</strong> Meditatie/ademwerk (MAOA warrior gene).<br>
+                                        <strong>Beweging:</strong> Mix cardio/kracht, niet overtrainen (CoQ10 hoog!).<br>
+                                        <strong>Hydratatie:</strong> 2-3L water (hematokriet 53.4% - dik bloed).
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="action-item">
+                                <div class="action-icon">📋</div>
+                                <div class="action-content">
+                                    <div class="action-title">Week 12: Complete Hertest</div>
+                                    <div class="action-description">
+                                        <strong>Full panel:</strong> Homocysteïne (doel: &lt;8), Ferritine (doel: 70-90), Vitamine D (doel: 50-60), Triglyceriden, Cholesterol panel, HbA1c, CRP, Complete bloedbeeld, Zink, Magnesium RBC, B12 actief.<br>
+                                        <strong>Evaluatie:</strong> Progress review + plan voor maanden 4-6 indien nodig.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Takeaways -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">💡 Belangrijkste Inzichten - Jouw Unieke Situatie</h2>
+            </div>
+
+            <div class="alerts-section">
+                <div class="alert-card alert-warning">
+                    <div class="alert-title">
+                        <span class="alert-icon">🧬</span>
+                        <span>Genetische Perfecte Storm</span>
+                    </div>
+                    <div class="alert-description">
+                        Je hebt een zeldzame combinatie: <strong>PEMT TT</strong> (geen choline productie) + <strong>CHDH CA</strong> (trage choline conversie) + <strong>BHMT downregulatie</strong> + <strong>CBS upregulatie</strong> + <strong>MTHFR dubbel variant</strong>. Dit verklaart je hoge homocysteïne (18.0) perfect. De oplossing: <strong>choline is jouw fundament</strong>, niet methylated B's!
+                    </div>
+                </div>
+
+                <div class="alert-card alert-warning">
+                    <div class="alert-title">
+                        <span class="alert-icon">⚠️</span>
+                        <span>Volgorde is Cruciaal</span>
+                    </div>
+                    <div class="alert-description">
+                        <strong>FOUT:</strong> Direct methylated B's starten bij CBS upregulatie = ammonia crisis.<br>
+                        <strong>GOED:</strong> Eerst choline (BHMT shortcut activeren) → 6 weken wachten → hertest → dan voorzichtig B's toevoegen. Dit protocol respecteert je genetica.
+                    </div>
+                </div>
+
+                <div class="alert-card alert-good">
+                    <div class="alert-title">
+                        <span class="alert-icon">✅</span>
+                        <span>Positieve Factoren</span>
+                    </div>
+                    <div class="alert-description">
+                        <strong>Goed:</strong> B12 optimaal (180), HbA1c perfect (5.2), glucose normaal, magnesium adequaat, geen acute inflammatie (CRP 0.46).<br>
+                        <strong>COMT slow + VDR low:</strong> Lijkt negatief maar is eigenlijk een goede balans - normale dopamine levels zonder supplementatie nodig.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comprehensive Legal Disclaimer -->
+        <div class="section">
+            <div style="background: rgba(239, 68, 68, 0.05); border: 2px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 2.5rem;">
+                <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="font-size: 2.5rem; flex-shrink: 0;">⚕️</div>
+                    <div>
+                        <h3 style="color: #DC2626; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Juridische Disclaimer & Medische Aansprakelijkheid</h3>
+                        <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 1.5rem;">Gelieve deze informatie zorgvuldig te lezen voordat u dit rapport gebruikt</p>
+                    </div>
+                </div>
+                
+                <div style="font-size: 0.95rem; line-height: 1.8; color: var(--black);">
+                    <!-- Section 1: Nature of Information -->
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: #DC2626; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">1. Aard van de Verstrekte Informatie</h4>
+                        <p style="margin-bottom: 0.75rem;">
+                            Dit rapport bevat <strong>educatieve en informatieve</strong> inzichten gebaseerd op genetische analyse (DNA methylatie), bloedwaarden (biomarkers) en wetenschappelijke literatuur. De informatie is uitsluitend bedoeld ter ondersteuning van uw gezondheid en welzijn en vormt <strong>geen medisch advies, diagnose, behandeling of vervanging voor professionele medische zorg</strong>.
+                        </p>
+                        <p style="margin-bottom: 0;">
+                            HELD is <strong>geen medische instelling, ziekenhuis of kliniek</strong> en biedt geen medische diensten aan zoals gedefinieerd in de Belgische Wet betreffende de Uitoefening van de Gezondheidszorgberoepen (10 mei 2015) of de Europese Richtlijn 2011/24/EU betreffende patiëntenrechten.
+                        </p>
+                    </div>
+
+                    <!-- Section 2: Medical Professional Requirement -->
+                    <div style="margin-bottom: 2rem; background: rgba(254, 137, 0, 0.08); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--american-orange);">
+                        <h4 style="color: #EA580C; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">2. Verplichting tot Raadpleging van Medische Professional</h4>
+                        <p style="margin-bottom: 0.75rem;">
+                            <strong>U bent wettelijk en medisch verplicht om een erkende arts, apotheker of andere gekwalificeerde zorgverlener te raadplegen voordat u:</strong>
+                        </p>
+                        <ul style="list-style: none; padding-left: 0; margin-bottom: 1rem;">
+                            <li style="padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;">
+                                <span style="position: absolute; left: 0; color: #EA580C; font-weight: 700;">→</span>
+                                Voedingssupplementen, vitamines, mineralen of andere preparaten begint in te nemen
+                            </li>
+                            <li style="padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;">
+                                <span style="position: absolute; left: 0; color: #EA580C; font-weight: 700;">→</span>
+                                Bestaande medicatie, voorgeschreven behandelingen of therapieën wijzigt, stopt of aanpast
+                            </li>
+                            <li style="padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;">
+                                <span style="position: absolute; left: 0; color: #EA580C; font-weight: 700;">→</span>
+                                Significante veranderingen aanbrengt in uw dieet, voedingspatroon of levensstijl
+                            </li>
+                            <li style="padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;">
+                                <span style="position: absolute; left: 0; color: #EA580C; font-weight: 700;">→</span>
+                                Beslissingen neemt over uw gezondheid op basis van genetische of laboratoriumtests
+                            </li>
+                            <li style="padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;">
+                                <span style="position: absolute; left: 0; color: #EA580C; font-weight: 700;">→</span>
+                                Zwanger bent, zwanger wilt worden, borstvoeding geeft, of medische aandoeningen heeft
+                            </li>
+                        </ul>
+                        <p style="margin-bottom: 0; font-weight: 600; color: #EA580C;">
+                            ⚠️ Het niet raadplegen van een medische professional voorafgaand aan implementatie van dit plan is op eigen risico en kan leiden tot ongewenste gezondheidseffecten, medicatie-interacties of verergering van bestaande aandoeningen.
+                        </p>
+                    </div>
+
+                    <!-- Section 3: Supplement Safety -->
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: #DC2626; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">3. Voedingssupplementen - Veiligheid & Interacties</h4>
+                        <p style="margin-bottom: 0.75rem;">
+                            <strong>Voedingssupplementen zijn geen geneesmiddelen</strong> en vallen onder de Europese Verordening (EG) Nr. 1924/2006 en de Belgische KB van 3 maart 1992. Supplementen kunnen:
+                        </p>
+                        <ul style="list-style: disc; padding-left: 2rem; margin-bottom: 0.75rem;">
+                            <li style="margin-bottom: 0.5rem;">Interacties hebben met voorgeschreven medicatie (bijv. bloedverdunners, antidepressiva, chemotherapie)</li>
+                            <li style="margin-bottom: 0.5rem;">Contra-indicaties hebben bij bepaalde medische aandoeningen (bijv. nierziekten, leverproblemen, auto-immuunziekten)</li>
+                            <li style="margin-bottom: 0.5rem;">Bijwerkingen veroorzaken, zelfs bij aanbevolen doseringen</li>
+                            <li style="margin-bottom: 0.5rem;">Risico's inhouden tijdens zwangerschap, lactatie of voor kinderen</li>
+                            <li style="margin-bottom: 0.5rem;">Laboratoriumtesten of medische diagnoses beïnvloeden</li>
+                        </ul>
+                        <p style="margin-bottom: 0;">
+                            <strong>Raadpleeg uw arts of apotheker</strong> om vast te stellen of de aanbevolen supplementen veilig zijn in combinatie met uw huidige medicatie en gezondheidstoestand.
+                        </p>
+                    </div>
+
+                    <!-- Section 4: Genetic Testing Limitations -->
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: #DC2626; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">4. Beperkingen van Genetische Testen</h4>
+                        <p style="margin-bottom: 0.75rem;">
+                            DNA-analyse voor methylatie en nutrigenomics is een <strong>ontwikkelend wetenschapsgebied</strong>. De interpretatie van genetische varianten:
+                        </p>
+                        <ul style="list-style: disc; padding-left: 2rem; margin-bottom: 0.75rem;">
+                            <li style="margin-bottom: 0.5rem;">Is gebaseerd op huidige wetenschappelijke inzichten die kunnen evolueren</li>
+                            <li style="margin-bottom: 0.5rem;">Toont alleen genetische predisposities, geen absolute zekerheid over gezondheidsuitkomsten</li>
+                            <li style="margin-bottom: 0.5rem;">Wordt beïnvloed door omgevingsfactoren, levensstijl, epigenetica en andere niet-geteste genetische varianten</li>
+                            <li style="margin-bottom: 0.5rem;">Vervangt geen klinische diagnostiek of medische beeldvorming</li>
+                        </ul>
+                        <p style="margin-bottom: 0;">
+                            Genetische informatie mag <strong>niet worden gebruikt voor zelfdiagnose</strong> van ziekten of aandoeningen. Alleen een erkende arts kan een medische diagnose stellen.
+                        </p>
+                    </div>
+
+                    <!-- Section 5: Laboratory Values -->
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: #DC2626; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">5. Interpretatie van Bloedwaarden</h4>
+                        <p style="margin-bottom: 0.75rem;">
+                            De bloedwaarden in dit rapport zijn afkomstig van erkende laboratoria, maar de <strong>interpretatie en aanbevelingen zijn niet-medisch</strong>. Verschillen tussen "optimale" en "normale" referentiewaarden zijn gebaseerd op functionele geneeskunde principes en wetenschappelijke literatuur, maar zijn <strong>geen vervanging voor medische beoordeling</strong>.
+                        </p>
+                        <p style="margin-bottom: 0;">
+                            Afwijkende waarden kunnen wijzen op onderliggende medische aandoeningen die <strong>professionele medische evaluatie en behandeling</strong> vereisen. Raadpleeg uw arts voor volledige interpretatie van laboratoriumresultaten.
+                        </p>
+                    </div>
+
+                    <!-- Section 6: Individual Variability -->
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: #DC2626; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">6. Individuele Variabiliteit & Resultaten</h4>
+                        <p style="margin-bottom: 0.75rem;">
+                            <strong>Resultaten kunnen sterk variëren tussen individuen.</strong> HELD geeft geen garanties of toezeggingen met betrekking tot:
+                        </p>
+                        <ul style="list-style: disc; padding-left: 2rem; margin-bottom: 0.75rem;">
+                            <li style="margin-bottom: 0.5rem;">De effectiviteit van aanbevolen interventies voor uw specifieke situatie</li>
+                            <li style="margin-bottom: 0.5rem;">Tijdslijnen voor verbetering van biomarkers of symptomen</li>
+                            <li style="margin-bottom: 0.5rem;">Preventie, behandeling of genezing van enige ziekte of aandoening</li>
+                            <li style="margin-bottom: 0.5rem;">Compatibiliteit met uw unieke medische geschiedenis, genetica of levensstijl</li>
+                        </ul>
+                        <p style="margin-bottom: 0;">
+                            Wat werkt voor de ene persoon, werkt mogelijk niet voor een ander. <strong>Luister altijd naar uw lichaam</strong> en raadpleeg een arts bij onverwachte reacties of verslechtering van symptomen.
+                        </p>
+                    </div>
+
+                    <!-- Section 7: Liability Limitation -->
+                    <div style="margin-bottom: 2rem; background: rgba(239, 68, 68, 0.08); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #DC2626;">
+                        <h4 style="color: #DC2626; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">7. Beperking van Aansprakelijkheid</h4>
+                        <p style="margin-bottom: 0.75rem;">
+                            HELD, haar medewerkers, coaches, consultants en gelieerde partijen zijn <strong>niet aansprakelijk</strong> voor:
+                        </p>
+                        <ul style="list-style: disc; padding-left: 2rem; margin-bottom: 0.75rem;">
+                            <li style="margin-bottom: 0.5rem;">Gezondheidsschade, bijwerkingen, allergische reacties of complicaties als gevolg van het gebruik van aanbevolen supplementen of interventies</li>
+                            <li style="margin-bottom: 0.5rem;">Medicatie-interacties, contra-indicaties of ongewenste effecten door implementatie van dit plan zonder medisch advies</li>
+                            <li style="margin-bottom: 0.5rem;">Verergering van bestaande medische aandoeningen of het ontstaan van nieuwe aandoeningen</li>
+                            <li style="margin-bottom: 0.5rem;">Economische schade, gederfde inkomsten of andere financiële verliezen</li>
+                            <li style="margin-bottom: 0.5rem;">Beslissingen genomen op basis van dit rapport zonder raadpleging van een medische professional</li>
+                        </ul>
+                        <p style="margin-bottom: 0; font-weight: 600;">
+                            Door gebruik te maken van dit rapport erkent u dat u <strong>volledige verantwoordelijkheid</strong> draagt voor uw gezondheidsbeslis­singen en dat u HELD vrijwaart van elke vorm van aansprakelijkheid.
+                        </p>
+                    </div>
+
+                    <!-- Section 8: Emergency Situations -->
+                    <div style="margin-bottom: 2rem; background: rgba(239, 68, 68, 0.1); padding: 1.5rem; border-radius: 8px;">
+                        <h4 style="color: #DC2626; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">8. Medische Noodsituaties</h4>
+                        <p style="margin-bottom: 0.75rem; font-weight: 600;">
+                            Bij de volgende situaties: stop onmiddellijk met supplementen en contacteer uw arts of spoed­diensten (112 in België/Europa):
+                        </p>
+                        <ul style="list-style: disc; padding-left: 2rem; margin-bottom: 0.75rem;">
+                            <li style="margin-bottom: 0.5rem;">Acute pijn op de borst, kortademigheid of hartkloppingen</li>
+                            <li style="margin-bottom: 0.5rem;">Ernstige allergische reacties (zwelling, huiduitslag, ademhalingsproblemen)</li>
+                            <li style="margin-bottom: 0.5rem;">Neurologische symptomen (verlamming, spraakproblemen, plotselinge hoofdpijn)</li>
+                            <li style="margin-bottom: 0.5rem;">Onverklaarbare bloedingen, hevige buikpijn of persisterende misselijkheid</li>
+                            <li style="margin-bottom: 0.5rem;">Significante verslechtering van bestaande symptomen</li>
+                        </ul>
+                        <p style="margin-bottom: 0; font-weight: 600; color: #DC2626;">
+                            🚨 HELD biedt geen spoedopvang of medische noodhulp. Contacteer bij nood altijd 112 of uw dichtstbijzijnde spoedafdeling.
+                        </p>
+                    </div>
+
+                    <!-- Section 9: Data Privacy -->
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: #DC2626; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">9. Privacy & Gegevensbescherming</h4>
+                        <p style="margin-bottom: 0;">
+                            Uw genetische informatie en gezondheidsgegevens worden behandeld in overeenstemming met de Algemene Verordening Gegevensbescherming (AVG/GDPR) en de Belgische privacywetgeving. Uw gegevens worden vertrouwelijk behandeld en niet gedeeld met derden zonder uw expliciete toestemming, behalve waar wettelijk verplicht. Zie ons privacybeleid voor volledige informatie.
+                        </p>
+                    </div>
+
+                    <!-- Section 10: Regulatory Compliance -->
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: #DC2626; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">10. Wettelijke Conformiteit & Toepasselijk Recht</h4>
+                        <p style="margin-bottom: 0.75rem;">
+                            Dit rapport en de dienstverlening van HELD voldoen aan:
+                        </p>
+                        <ul style="list-style: disc; padding-left: 2rem; margin-bottom: 0.75rem;">
+                            <li style="margin-bottom: 0.5rem;"><strong>Belgische wetgeving:</strong> Wet betreffende de Uitoefening van de Gezondheidszorgberoepen (10 mei 2015), KB 3 maart 1992 betreffende voedingssupplementen</li>
+                            <li style="margin-bottom: 0.5rem;"><strong>Europese regelgeving:</strong> Verordening (EG) Nr. 1924/2006 (Health Claims), Verordening (EU) 2015/2283 (Novel Foods), GDPR</li>
+                            <li style="margin-bottom: 0.5rem;"><strong>ISO normen:</strong> ISO 15189 voor medische laboratoria (waar van toepassing)</li>
+                        </ul>
+                        <p style="margin-bottom: 0;">
+                            Op deze overeenkomst en disclaimer is <strong>Belgisch recht</strong> van toepassing. Geschillen worden voorgelegd aan de bevoegde rechtbanken van België.
+                        </p>
+                    </div>
+
+                    <!-- Section 11: Acknowledgment -->
+                    <div style="background: rgba(52, 178, 123, 0.08); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--jungle-green);">
+                        <h4 style="color: var(--jungle-green); font-weight: 700; font-size: 1.1rem; margin-bottom: 0.75rem;">11. Erkenning & Instemming</h4>
+                        <p style="margin-bottom: 0.75rem;">
+                            Door dit rapport te gebruiken, bevestigt u dat u:
+                        </p>
+                        <ul style="list-style: none; padding-left: 0; margin-bottom: 0.75rem;">
+                            <li style="padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;">
+                                <span style="position: absolute; left: 0; color: var(--jungle-green); font-weight: 700;">✓</span>
+                                Deze volledige disclaimer hebt gelezen en begrepen
+                            </li>
+                            <li style="padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;">
+                                <span style="position: absolute; left: 0; color: var(--jungle-green); font-weight: 700;">✓</span>
+                                Erkent dat dit rapport geen medisch advies is
+                            </li>
+                            <li style="padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;">
+                                <span style="position: absolute; left: 0; color: var(--jungle-green); font-weight: 700;">✓</span>
+                                Uw arts zult raadplegen voordat u supplementen start of wijzigingen doorvoert
+                            </li>
+                            <li style="padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;">
+                                <span style="position: absolute; left: 0; color: var(--jungle-green); font-weight: 700;">✓</span>
+                                Volledige verantwoordelijkheid draagt voor uw gezondheidsbeslis­singen
+                            </li>
+                            <li style="padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;">
+                                <span style="position: absolute; left: 0; color: var(--jungle-green); font-weight: 700;">✓</span>
+                                HELD vrijwaart van elke vorm van aansprakelijkheid
+                            </li>
+                        </ul>
+                        <p style="margin-bottom: 0; font-weight: 600; color: var(--jungle-green);">
+                            Bij vragen over deze disclaimer of uw rechten en plichten, neem contact op met HELD voordat u dit rapport gebruikt.
+                        </p>
+                    </div>
+
+                    <!-- Document Date -->
+                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-border); font-size: 0.85rem; opacity: 0.6; text-align: center;">
+                        Laatste update disclaimer: 5 november 2025 | HELD - Preventieve Gezondheid & Biohacking, België
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Supplements CTA -->
+        <div class="section">
+            <div style="background: linear-gradient(135deg, var(--jungle-green) 0%, var(--jungle-green-dark) 100%); border-radius: 24px; padding: 3rem; text-align: center; color: white; box-shadow: 0 16px 40px -24px rgba(52, 178, 123, 0.45);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">💊</div>
+                <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">Jouw Gepersonaliseerde Supplementenplan</h2>
+                <p style="font-size: 1.1rem; margin-bottom: 2rem; opacity: 0.95; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    Alle aanbevolen supplementen zijn zorgvuldig geselecteerd op basis van jouw DNA analyse en bloedwaarden. Bestel je complete protocol via Welldium.
+                </p>
+                <a href="https://welldium.com/r/q89756e" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: white; color: var(--jungle-green); padding: 1.25rem 3rem; border-radius: 9999px; font-weight: 700; font-size: 1.1rem; text-decoration: none; transition: all 0.2s; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 12px 32px rgba(0, 0, 0, 0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 24px rgba(0, 0, 0, 0.15)'">
+                    Bestel Supplementen via Welldium →
+                </a>
+                <p style="font-size: 0.9rem; margin-top: 1.5rem; opacity: 0.85;">
+                    ⚠️ Bespreek dit supplementenplan eerst met je arts voordat je start
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-text">HELD - Preventieve Gezondheid & Biohacking</div>
+            <div class="footer-note">
+                Dit rapport combineert DNA methylatie analyse (32 genen), bloedwaarden en expert consultatie voor gepersonaliseerde precision medicine.<br>
+                Volgende consult: 17 december 2025 voor hertesting en evaluatie.<br>
+                Bij vragen of onduidelijkheden: neem contact op met je HELD coach.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animate on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Animate cards on load
+        document.querySelectorAll('.biomarker-card, .dna-card, .timeline-phase, .priority-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(el);
+        });
+
+        // Animate progress bars
+        setTimeout(() => {
+            document.querySelectorAll('.biomarker-fill').forEach(fill => {
+                fill.style.transition = 'width 1s ease';
+            });
+        }, 100);
+    </script>
+</body>
+</html>

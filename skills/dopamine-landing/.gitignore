@@ -1,0 +1,27 @@
+# Node modules (if you add example implementations)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Build outputs (if you add templates)
+dist/
+build/
+*.min.js
+*.min.css

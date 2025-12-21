@@ -1,0 +1,586 @@
+# 🏥 HELD PRECISION HEALTH SKILL - COMPLETE PAKKET
+
+**PLAK DIT VOLLEDIG IN CLAUDE CODE OM DE SKILL TE MAKEN**
+
+---
+
+## 📋 INSTRUCTIE VOOR CLAUDE CODE
+
+Maak een precision health dashboard generator skill voor HELD met deze specificaties:
+
+### 🎯 DOEL
+Automatisch genereren van gepersonaliseerde health dashboards op basis van:
+- DNA methylatie analyse (32 genen)
+- Bloedwaarden (biomarkers)
+- Consult notities
+- Output: Interactief HTML dashboard + PDF export
+
+### 📁 SKILL LOCATIE
+```
+/mnt/skills/user/held-precision-health/
+```
+
+### 🏗️ BESTANDSSTRUCTUUR
+
+Maak deze exact aan:
+```
+/mnt/skills/user/held-precision-health/
+├── SKILL.md                          # Documentatie (zie hieronder)
+├── held_dashboard_generator.py       # Main Python script
+├── templates/
+│   └── dashboard_base.html           # HTML template basis
+├── parsers/
+│   ├── __init__.py
+│   ├── blood_parser.py              # Blood test parsing
+│   └── dna_parser.py                # DNA methylation parsing
+├── config/
+│   ├── brand_config.json            # HELD branding (zie hieronder)
+│   └── gene_database.json           # DNA variant interpretaties
+└── examples/
+    ├── mario_example.html           # Volledig voorbeeld (zie hieronder)
+    └── test_data.json               # Mario's test data
+```
+
+### 🎨 HELD BRAND CONFIG
+
+Maak `config/brand_config.json`:
+```json
+{
+  "brand_name": "HELD",
+  "tagline": "Preventieve Gezondheid & Biohacking",
+  "colors": {
+    "primary": "#34B27B",
+    "primary_dark": "#2d9e6b",
+    "secondary": "#FE8900",
+    "background": "#FFFFFF",
+    "text": "#000000",
+    "status": {
+      "critical": "#EF4444",
+      "warning": "#FE8900",
+      "optimal": "#34B27B"
+    }
+  },
+  "design": {
+    "border_radius_pill": "9999px",
+    "border_radius_card": "12px",
+    "border_radius_large": "24px"
+  }
+}
+```
+
+### 📊 INPUT DATA FORMATS
+
+#### Bloedwaarden Format:
+```
+Naam Resultaat Referentiewaarden Eenheid
+
+Voorbeelden:
+HomocysteÏne + 18.0 Opt:<8.0 V.N 3.7-13.9 µmol/L
+Ferritine + 307 50-120:opt. 22-322:VN µg/L
+Vitamine D - 39.7 45-60:opt. 30-100:VN ng/ml
+```
+
+**PARSING REGELS:**
+- Focus op "Opt:" ranges (optimaal/functioneel)
+- `+` = te hoog, `-` = te laag
+- Status: critical (rood) / warning (oranje) / optimal (groen)
+
+#### DNA Methylatie Format:
+```
+Gen rs-nummer Genotype Impact_tekst
+
+Voorbeeld:
+MTHFR rs1801133 AG [C677T] Up to 40% reduction in gene function...
+CBS rs234706 AA Thought to be the strongest indicator of increased (up to 10x) CBS activity...
+PEMT rs7946 TT Potential for reduced choline synthesis...
+```
+
+**KRITIEKE GENEN:**
+- MTHFR (C677T & A1298C) - methylatie
+- CBS (rs234706) - upregulatie = GEVAARLIJK
+- PEMT, BHMT - choline pathway
+- COMT, MAOA - neurotransmitters
+- VDR, NOS3 - vitamine D & NO
+
+### 🧬 GENETICA LOGICA (KRITIEK!)
+
+**CBS Upregulatie (rs234706 AA):**
+```python
+if gene == "CBS" and genotype == "AA" and rs == "rs234706":
+    # KRITIEK: Tot 10x verhoogde CBS activiteit
+    # ACTIE: Choline EERST (6 weken), dan pas B-vitamines
+    # RISICO: B-vitamines zonder choline = ammonia buildup
+```
+
+**PEMT TT:**
+```python
+if gene == "PEMT" and genotype == "TT":
+    # Geen endogene choline productie
+    # ACTIE: Fosfatidylcholine 600-800mg is VERPLICHT
+```
+
+**MTHFR Combinatie:**
+```python
+if has_c677t and has_a1298c:
+    # Dubbel variant = extra methylatie support nodig
+    # ACTIE: 5-MTHF (niet folic acid!), B2, B3, magnesium, zink
+```
+
+### 💊 SUPPLEMENT PROTOCOL LOGICA
+
+**Timing & Fasing:**
+```python
+def generate_protocol(dna_variants, biomarkers):
+    protocol = []
+    
+    # 1. CHOLINE (if PEMT TT or BHMT issues) - ALTIJD EERST
+    if has_pemt_tt or has_bhmt_down:
+        protocol.append({
+            "time": "07:30",
+            "name": "Fosfatidylcholine",
+            "dosage": "600-800 mg",
+            "badge": "KERN"
+        })
+    
+    # 2. VITAMIN D (if low or VDR variants)
+    if low_vitd or has_vdr:
+        protocol.append({
+            "time": "08:00",
+            "name": "Vitamine D3 + K2 vloeibaar",
+            "dosage": "4000-5000 IU + 100mcg",
+            "badge": "KRITIEK"
+        })
+    
+    # 3. ZINC (always if methylation issues)
+    if has_bhmt or has_mthfr:
+        protocol.append({
+            "time": "12:30",
+            "name": "Zink Bisglycinaat",
+            "dosage": "25-30 mg",
+            "badge": "ESSENTIEEL"
+        })
+    
+    # 4. MAGNESIUM (if COMT slow)
+    if has_comt_slow:
+        protocol.append({
+            "time": "15:00",
+            "name": "Magnesium Glycinaat",
+            "dosage": "400 mg",
+            "badge": "SUPPORT"
+        })
+    
+    # 5. B-COMPLEX - ALLEEN NA 6 WEKEN BIJ CBS UPREGULATIE!
+    if has_mthfr:
+        badge = "FASE 2" if has_cbs_upregulation else "KERN"
+        protocol.append({
+            "time": "20:00",
+            "name": "Methylated B-Complex",
+            "dosage": "5-MTHF 400mcg, P5P 25mg",
+            "badge": badge
+        })
+    
+    # 6. TMG/BETAINE (if BHMT issues)
+    if has_bhmt:
+        protocol.append({
+            "time": "22:00",
+            "name": "TMG/Betaine",
+            "dosage": "500-1000 mg",
+            "badge": "KERN"
+        })
+    
+    return protocol
+```
+
+### 📅 3-MAANDEN PLAN STRUCTUUR
+
+```python
+def generate_3month_plan(dna, biomarkers):
+    # FASE 1: Week 1-6 - FUNDAMENT
+    phase1 = {
+        "title": "Fase 1: Fundament Leggen",
+        "duration": "Week 1-6",
+        "actions": [
+            "Choline pathway herstellen (PRIORITEIT)",
+            "Vitamine D normaliseren",
+            "Inflammatie onderzoek",
+            "COMT support starten"
+        ],
+        "warnings": ["⚠️ GEEN B-complex bij CBS upregulatie!"]
+    }
+    
+    # FASE 2: Week 6-8 - OPTIMALISATIE
+    phase2 = {
+        "title": "Fase 2: Methylatie Optimaliseren",
+        "duration": "Week 6-8",
+        "actions": [
+            "Hertest week 6 (homocysteine, ferritine, vit D)",
+            "B-complex toevoegen (ALS homocysteine gedaald)",
+            "Voeding optimaliseren",
+            "Antioxidant support"
+        ]
+    }
+    
+    # FASE 3: Week 8-12 - FINE-TUNING
+    phase3 = {
+        "title": "Fase 3: Fine-tuning",
+        "duration": "Week 8-12",
+        "actions": [
+            "Symptoom tracking",
+            "Dosering aanpassen",
+            "Lifestyle optimalisatie",
+            "Week 12: Complete hertest"
+        ]
+    }
+    
+    return [phase1, phase2, phase3]
+```
+
+### ⚖️ JURIDISCHE DISCLAIMER (VERPLICHT!)
+
+**Moet includen (11 secties):**
+1. Aard van de informatie (geen medisch advies)
+2. Verplichting arts te raadplegen
+3. Supplementen veiligheid & interacties
+4. Beperkingen genetische testen
+5. Interpretatie bloedwaarden
+6. Individuele variabiliteit
+7. Beperking aansprakelijkheid
+8. Medische noodsituaties (112)
+9. Privacy & GDPR
+10. Wettelijke conformiteit (België/EU)
+11. Erkenning & instemming
+
+**Belgische/EU wetgeving:**
+- Wet Gezondheidszorgberoepen (10 mei 2015)
+- KB 3 maart 1992 (supplementen)
+- EU Verordening 1924/2006 (Health Claims)
+- GDPR
+
+### 🎨 HTML TEMPLATE VEREISTEN
+
+**Must-have elementen:**
+```html
+<!-- Header met patient info -->
+<div class="header">
+  <div class="logo">HELD</div>
+  <button onclick="window.print()">📄 Download als PDF</button>
+</div>
+
+<!-- Kritieke Alerts (top 3) -->
+<div class="alerts-section">
+  <!-- Homocysteine, Ferritine, Vit D alerts -->
+</div>
+
+<!-- Prioriteiten Matrix -->
+<div class="priority-grid">
+  <!-- 3 priority cards: methylatie, inflammatie, neurotransmitters -->
+</div>
+
+<!-- Dagelijks Supplementenprotocol -->
+<div class="supplement-grid">
+  <!-- Timing-based protocol met badges -->
+</div>
+
+<!-- Biomarkers Grid -->
+<div class="biomarkers-grid">
+  <!-- Cards met progress bars & status -->
+</div>
+
+<!-- DNA Varianten -->
+<div class="dna-grid">
+  <!-- Gene cards met impact & recommendations -->
+</div>
+
+<!-- 3-Maanden Plan Timeline -->
+<div class="timeline">
+  <!-- Phased approach met warnings -->
+</div>
+
+<!-- Juridische Disclaimer -->
+<div class="disclaimer">
+  <!-- Complete 11-section disclaimer -->
+</div>
+
+<!-- Welldium CTA -->
+<div class="cta-section">
+  <a href="{{WELLDIUM_LINK}}">Bestel Supplementen →</a>
+</div>
+
+<!-- Print CSS -->
+<style>
+@media print {
+  button { display: none; }
+  /* PDF optimalisatie */
+}
+</style>
+```
+
+### 🚀 MAIN PYTHON IMPLEMENTATIE
+
+```python
+#!/usr/bin/env python3
+"""HELD Precision Health Dashboard Generator"""
+
+import re
+import json
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, List, Optional
+
+class HELDDashboardGenerator:
+    def __init__(self):
+        self.load_config()
+        self.load_gene_database()
+        
+    def generate_dashboard(
+        self,
+        patient_name: str,
+        consult_date: str,
+        blood_data: str,
+        dna_data: str,
+        consult_notes: str = "",
+        welldium_link: str = ""
+    ) -> str:
+        """Generate complete dashboard"""
+        
+        # Parse data
+        biomarkers = self.parse_blood_data(blood_data)
+        dna_variants = self.parse_dna_data(dna_data)
+        
+        # Analyze
+        alerts = self.identify_critical_alerts(biomarkers)
+        priorities = self.generate_priorities(biomarkers, dna_variants)
+        
+        # Generate protocols
+        supplements = self.generate_supplement_protocol(dna_variants, biomarkers)
+        plan = self.generate_3month_plan(dna_variants, biomarkers)
+        
+        # Build HTML
+        html = self.build_html(
+            patient_name=patient_name,
+            consult_date=consult_date,
+            biomarkers=biomarkers,
+            dna_variants=dna_variants,
+            alerts=alerts,
+            priorities=priorities,
+            supplements=supplements,
+            plan=plan,
+            welldium_link=welldium_link
+        )
+        
+        return html
+        
+    def parse_blood_data(self, text: str) -> List[Dict]:
+        """Parse blood tests - focus on Opt: ranges"""
+        biomarkers = []
+        
+        for line in text.strip().split('\n'):
+            # Extract: name, value, ranges, unit, flag
+            match = re.search(
+                r'([A-Za-zÏëäöüÄÖÜ\s\-]+)\s*([+\-])?\s*(\d+\.?\d*)\s+.*?(Opt:<?[<>]?[\d\.\-]+).*?([µmg/dLIUngpmol%]+)',
+                line
+            )
+            if match:
+                name, flag, value, opt_range, unit = match.groups()
+                
+                # Determine status based on optimal range
+                status = self.determine_status(float(value), opt_range)
+                
+                biomarkers.append({
+                    "name": name.strip(),
+                    "value": float(value),
+                    "unit": unit,
+                    "optimal_range": opt_range.replace("Opt:", ""),
+                    "status": status,
+                    "flag": flag or ""
+                })
+                
+        return biomarkers
+        
+    def parse_dna_data(self, text: str) -> List[Dict]:
+        """Parse DNA methylation results"""
+        variants = []
+        
+        # Split by gene sections
+        sections = re.split(r'(?=\n[A-Z]+\s+rs\d+)', text)
+        
+        for section in sections:
+            match = re.search(
+                r'([A-Z]+)\s+(rs\d+)\s+([AGTC]{2})\s+(.+)',
+                section
+            )
+            if match:
+                gene, rs, genotype, impact = match.groups()
+                
+                # Determine severity
+                severity = self.determine_gene_severity(gene, genotype, rs, impact)
+                
+                # Get recommendations from database
+                recs = self.get_recommendations(gene, genotype)
+                
+                variants.append({
+                    "gene": gene,
+                    "rs_number": rs,
+                    "genotype": genotype,
+                    "impact": impact[:200],  # First 200 chars
+                    "severity": severity,
+                    "recommendations": recs
+                })
+                
+        return variants
+        
+    def determine_gene_severity(self, gene, genotype, rs, impact):
+        """Determine severity of genetic variant"""
+        
+        # CBS rs234706 AA = CRITICAL
+        if gene == "CBS" and rs == "rs234706" and genotype == "AA":
+            return "critical"
+            
+        # PEMT TT = WARNING
+        if gene == "PEMT" and genotype == "TT":
+            return "warning"
+            
+        # MTHFR variants = WARNING
+        if gene == "MTHFR" and genotype in ["AG", "GT"]:
+            return "warning"
+            
+        # Default based on impact text
+        if "reduction" in impact.lower() or "decreased" in impact.lower():
+            return "warning"
+        elif "10x" in impact or "increased" in impact.lower():
+            return "critical"
+        else:
+            return "info"
+            
+    def save_dashboard(self, html: str, patient_name: str) -> str:
+        """Save HTML and return filepath"""
+        timestamp = datetime.now().strftime("%Y%m%d")
+        filename = f"{patient_name.replace(' ', '_')}_HELD_Dashboard_{timestamp}.html"
+        filepath = Path(f"/mnt/user-data/outputs/{filename}")
+        
+        filepath.write_text(html, encoding='utf-8')
+        return str(filepath)
+
+
+def main():
+    """Interactive CLI"""
+    print("🏥 HELD Precision Health Dashboard Generator")
+    print("=" * 60)
+    
+    # Get inputs
+    patient_name = input("\n📝 Patiënt naam: ").strip()
+    consult_date = input("📅 Consult datum (YYYY-MM-DD): ").strip()
+    
+    print("\n🩸 Plak bloedwaarden (Enter 2x om te stoppen):")
+    blood_lines = []
+    while True:
+        line = input()
+        if not line:
+            break
+        blood_lines.append(line)
+    
+    print("\n🧬 Plak DNA data (Enter 2x om te stoppen):")
+    dna_lines = []
+    while True:
+        line = input()
+        if not line:
+            break
+        dna_lines.append(line)
+    
+    welldium_link = input("\n💊 Welldium link (optioneel): ").strip()
+    
+    # Generate
+    print("\n⚙️  Genereren...")
+    generator = HELDDashboardGenerator()
+    html = generator.generate_dashboard(
+        patient_name=patient_name,
+        consult_date=consult_date,
+        blood_data='\n'.join(blood_lines),
+        dna_data='\n'.join(dna_lines),
+        welldium_link=welldium_link
+    )
+    
+    # Save
+    filepath = generator.save_dashboard(html, patient_name)
+    
+    print(f"\n✅ Dashboard saved: {filepath}")
+    print(f"\n📄 Open: file://{filepath}")
+    print("\n💡 Tip: Klik 'Download als PDF' in de browser")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### ✅ SUCCESS CRITERIA
+
+De skill werkt als:
+- [ ] Python script runt zonder errors
+- [ ] Biomarkers correct geparsed (Opt: ranges)
+- [ ] DNA varianten geïnterpreteerd
+- [ ] CBS upregulatie detecteert VOOR B-vitamines warning
+- [ ] Supplement protocol is timing-based
+- [ ] 3-maanden plan is gefaseerd
+- [ ] Disclaimer volledig included
+- [ ] PDF export functionaliteit werkt
+- [ ] HELD branding correct
+
+### 🎯 TEST MET MARIO'S DATA
+
+**Blood sample:**
+```
+HomocysteÏne + 18.0 Opt:<8.0 V.N 3.7-13.9 µmol/L
+Ferritine + 307 50-120:opt. 22-322:VN µg/L
+Vitamine D - 39.7 45-60:opt. 30-100:VN ng/ml
+```
+
+**DNA sample:**
+```
+MTHFR rs1801133 AG [C677T] Up to 40% reduction in gene function
+CBS rs234706 AA Thought to be the strongest indicator of increased (up to 10x) CBS activity
+PEMT rs7946 TT Potential for reduced choline synthesis
+```
+
+**Expected output:**
+- Alert: Homocysteine critical
+- Priority 1: Methylatie herstellen (choline first!)
+- Supplement: Fosfatidylcholine 07:30 (KERN badge)
+- Supplement: B-Complex 20:00 (FASE 2 badge - na 6 weken!)
+- Phase 1 warning: "⚠️ GEEN B-complex bij CBS upregulatie!"
+
+### 📚 DEPENDENCIES
+
+```
+Python 3.8+
+Standard library only:
+- re
+- json
+- datetime
+- pathlib
+- typing
+```
+
+### 🆘 CRITICAL REMINDERS
+
+1. **NOOIT medische waarden raden** - alleen echte data gebruiken
+2. **CBS upregulatie = GEVAARLIJK** - choline VOOR B-vitamines
+3. **Opt: ranges = prioriteit** - niet normale ranges
+4. **Disclaimer is VERPLICHT** - alle 11 secties
+5. **PDF export moet werken** - print CSS includen
+6. **Timing is cruciaal** - supplementen op juiste tijden
+
+---
+
+## 🚀 START COMMANDO
+
+```
+Maak nu de complete skill volgens deze specificaties.
+Start met het aanmaken van de directory structuur.
+Implementeer eerst de parsers, dan de generator, dan test met Mario's data.
+```
+
+---
+
+**Versie:** 1.0.0  
+**Datum:** 5 november 2025  
+**Voor:** Claude Code Implementation

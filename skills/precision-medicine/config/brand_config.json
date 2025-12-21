@@ -1,0 +1,84 @@
+{
+  "brand_name": "HELD",
+  "tagline": "Preventieve Gezondheid & Biohacking",
+  "colors": {
+    "primary": "#34B27B",
+    "primary_dark": "#2d9e6b",
+    "secondary": "#FE8900",
+    "background": "#FFFFFF",
+    "text": "#000000",
+    "border": "#E6E6E6",
+    "dark_bg": "#11181C",
+    "dark_text": "#ededef",
+    "slate_3": "#232326",
+    "status": {
+      "critical": "#EF4444",
+      "warning": "#FE8900",
+      "optimal": "#34B27B",
+      "good": "#10B981"
+    }
+  },
+  "typography": {
+    "font_family": "Inter, Open Sans, system-ui, -apple-system, sans-serif",
+    "weights": {
+      "regular": 400,
+      "semibold": 600,
+      "bold": 700
+    }
+  },
+  "design_tokens": {
+    "border_radius": {
+      "small": "8px",
+      "medium": "12px",
+      "large": "24px",
+      "pill": "9999px"
+    },
+    "spacing": {
+      "xs": "0.5rem",
+      "sm": "1rem",
+      "md": "1.5rem",
+      "lg": "2rem",
+      "xl": "3rem"
+    },
+    "shadows": {
+      "soft": "0 2px 8px rgba(0, 0, 0, 0.08)",
+      "medium": "0 8px 24px rgba(0, 0, 0, 0.12)",
+      "primary": "0 16px 40px -24px rgba(52, 178, 123, 0.35)",
+      "primary_button": "0 8px 24px rgba(52, 178, 123, 0.45)"
+    }
+  },
+  "status_thresholds": {
+    "biomarkers": {
+      "homocysteine": {
+        "optimal_max": 8.0,
+        "normal_max": 13.9,
+        "unit": "µmol/L"
+      },
+      "ferritin": {
+        "optimal_min": 50,
+        "optimal_max": 120,
+        "normal_max": 322,
+        "unit": "µg/L"
+      },
+      "vitamin_d": {
+        "optimal_min": 45,
+        "optimal_max": 60,
+        "normal_min": 30,
+        "unit": "ng/ml"
+      }
+    }
+  },
+  "legal": {
+    "country": "België",
+    "jurisdiction": "Belgisch recht",
+    "compliance": [
+      "Wet betreffende de Uitoefening van de Gezondheidszorgberoepen (10 mei 2015)",
+      "KB 3 maart 1992 betreffende voedingssupplementen",
+      "EU Verordening (EG) Nr. 1924/2006",
+      "EU Verordening (EU) 2015/2283",
+      "GDPR/AVG"
+    ],
+    "disclaimer_required": true,
+    "medical_consultation_required": true
+  }
+}
